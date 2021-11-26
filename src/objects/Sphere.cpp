@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Sphere::Sphere(const Vector3 &origin, double radius, Color c) : origin(origin), radius(radius), color(c) {}
+Sphere::Sphere(const Vector3 &origin, double radius, Color c) : origin(origin), radius(radius) { this->color = c; }
 
 double Sphere::intersectsRayAt(Ray &ray) {
 

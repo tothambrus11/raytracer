@@ -5,8 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 MATH(EXPR stack_size "100 * 1024 * 1024")
 
-find_package(Threads REQUIRED)
-
 include_directories(includes src)
 
 add_executable(renderer1

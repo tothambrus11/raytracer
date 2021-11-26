@@ -3,10 +3,9 @@
 #include <HittableObject.h>
 #include <Vector3.h>
 
-class Sphere : HittableObject {
+class Sphere : public HittableObject {
 public:
     Vector3 origin;
-    Color color;
 
     double radius;
     Sphere(const Vector3 &origin, double radius, Color color);

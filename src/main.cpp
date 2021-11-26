@@ -9,18 +9,19 @@
 #include <objects/Sphere.h>
 #include <vector>
 #include <objects/Octahedron.h>
+#include <atomic>
 #include "array"
+#include "thread"
 
 using namespace std;
 
-const int SCREEN_WIDTH = 900;
-const int SCREEN_HEIGHT = SCREEN_WIDTH * 9.0 / 16.0;
+const int SCREEN_WIDTH = 600;
+const int SCREEN_HEIGHT = static_cast<int>(SCREEN_WIDTH * 9.0 / 16.0);
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 
 const int pxcount = SCREEN_HEIGHT * SCREEN_WIDTH;
-
 
 int main(int argc, char *args[]) {
 
@@ -61,7 +62,6 @@ int main(int argc, char *args[]) {
             double d = cos(alpha / 2) * c;
             cout << "d: " << d;
 
-            Octahedron octahedron({0, 0, d + 100}, 50);
             for (int y = 0; y < SCREEN_HEIGHT; ++y) {
                 for (int x = 0; x < SCREEN_WIDTH; ++x) {
                     rays[y][x].direction = {x * scale - w / 2, y * scale - h / 2, d};
@@ -72,19 +72,24 @@ int main(int argc, char *args[]) {
             cout << endl << rays[SCREEN_HEIGHT - 1][0].direction.toString();
             cout << endl << rays[SCREEN_HEIGHT / 2][SCREEN_WIDTH / 2].direction.toString();
 
+            vector<HittableObject *> objects = {};
 
-            vector<Sphere> objects = {
-                    {{0, 0, 480}, 20, {255, 0,   0}},
-                    {{0, 0, 480}, 20, {0,   255, 0}},
-                    {{0, 0, 500}, 40, {0,   0,   255}}
-            };
-            Sphere &sphere = objects[0];
+            objects.push_back((HittableObject *) new Sphere({0, 0, 480}, 20, {255, 0, 0}));
+            objects.push_back((HittableObject *) new Sphere({0, 0, 480}, 20, {0, 255, 0}));
+            objects.push_back((HittableObject *) new Octahedron({0, 0, d + 100}, {0, 255, 255}, 50));
+            objects.push_back((HittableObject *) new Sphere({0, 0, 500}, 40, {0, 0, 255}));
+
+            // cout << "\n\n" << objects[2] << "\t\thll\n";
+
+            auto *s1 = (Sphere *) objects[0];
+            auto *s2 = (Sphere *) objects[1];
+            auto *s3 = (Sphere *) objects[3];
+            auto *oh = (Sphere *) objects[2];
 
             double avgDist = 0;
             while (!done) {
                 SDL_SetWindowTitle(window, (to_string(i++ / ((SDL_GetTicks() - t0) / 1000.0)) + " fps").c_str());
                 SDL_GetMouseState(&mouseX, &mouseY);
-
 
                 Vector3 s;
 
@@ -92,18 +97,18 @@ int main(int argc, char *args[]) {
                 yy %= SCREEN_HEIGHT;
                 yy = abs(yy);
 
-                s = rays[mouseY][mouseX].direction * octahedron.origin.z / rays[mouseY][mouseX].direction.z;
-                octahedron.origin.x = s.x;
-                octahedron.origin.y = s.y;
+                s = rays[mouseY][mouseX].direction * oh->origin.z / rays[mouseY][mouseX].direction.z;
+                oh->origin.x = s.x;
+                oh->origin.y = s.y;
 
-                s = rays[yy][mouseX].direction * sphere.origin.z / rays[yy][mouseX].direction.z;
-                sphere.origin.x = s.x; //mouseX / scale - w / 2;
-                sphere.origin.y = s.y; // mouseY / scale - h / 2;
+                s = rays[yy][mouseX].direction * s1->origin.z / rays[yy][mouseX].direction.z;
+                s1->origin.x = s.x; //mouseX / scale - w / 2;
+                s1->origin.y = s.y; // mouseY / scale - h / 2;
 
-                s = rays[yy][SCREEN_WIDTH - 1 - mouseX].direction * objects[1].origin.z /
+                s = rays[yy][SCREEN_WIDTH - 1 - mouseX].direction * s2->origin.z /
                     rays[yy][SCREEN_WIDTH - 1 - mouseX].direction.z;
-                objects[1].origin.x = s.x;
-                objects[1].origin.y = s.y;
+                s2->origin.x = s.x;
+                s2->origin.y = s.y;
                 //sphere.origin.z = pow(sin(i / 30.0), 2) * 1000 + d;
 
                 //sphere.origin.x = sin(i/10.0)* 300;
@@ -115,8 +120,10 @@ int main(int argc, char *args[]) {
                 SDL_RenderCopy(renderer, t, NULL, NULL);
                 SDL_RenderPresent(renderer);
 
-                double newAvgDist = 0;
-                int newCount = 0;
+                atomic<int> distSumTimes100 = 0;
+                atomic<int> newCount = 0;
+
+
                 for (int y = 0; y < SCREEN_HEIGHT; ++y) {
                     for (int x = 0; x < SCREEN_WIDTH; ++x) {
                         Color bestColor;
@@ -127,25 +134,27 @@ int main(int argc, char *args[]) {
                         bestDistance = 0;
                         found = false;
 
-                        /*for (Sphere &s : objects) {
-                            double distance = s.intersectsRayAt(rays[y][x]);
+                        for (auto &object : objects) {
+                            double distance = object->intersectsRayAt(rays[y][x]);
                             if (distance >= 0 && (!found || distance < bestDistance)) {
                                 bestDistance = distance;
-                                bestColor = s.color;
+                                bestColor = object->color;
                                 found = true;
                             }
-                        }*/
-                        auto dist = octahedron.intersectsRayAt(rays[y][x]);
+                        }
+/*
+                        auto dist = oh->intersectsRayAt(rays[y][x]);
                         if (dist > 0) {
-                            newAvgDist += dist;
-                            newCount++;
+                            //atomic_fetch_add(&distSumTimes100, static_cast<int>(dist * 100));
+                            //atomic_fetch_add(&newCount, 1);
 
-                            Uint8 color = 255 - min(255.0, max(0.0, 127 + (avgDist - dist) * 127.0/50.0));
+                            Uint8 color = 255 - min(255.0, max(0.0, 127 + (avgDist - dist) * 127.0 / 50.0));
                             //cout << dist
                             bestColor = {color, 0, 0};
                         }
-
+*/
                         pixels[x + y * SCREEN_WIDTH] = bestColor;
+
 
                     }
                 }
@@ -156,10 +165,14 @@ int main(int argc, char *args[]) {
                     }
                 }
 
-                cout << avgDist <<endl;
-                avgDist = newAvgDist / newCount;
+                // cout << avgDist << endl;
+                avgDist = distSumTimes100 / 100.0 / (double) newCount;
                 //SDL_Delay(10);
             }
+            for (const auto &item : objects) {
+                //delete item;
+            }
+            objects.clear();
         }
 
 

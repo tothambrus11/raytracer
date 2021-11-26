@@ -20,16 +20,16 @@ double Octahedron::intersectsRayAt(Ray &ray) {
     // 300
 
     double minC = -1;
-    for (auto i = -1; i <= 1; i += 2) {
-        for (auto j = -1; j <= 1; j += 2) {
-            for (auto k = -1; k <= 1; k += 2) {
+    for (auto &i : {-1, 1}) {
+        for (auto &j : {-1, 1}) {
+            for (auto &k : {-1, 1}) {
                 auto c = (size + origin.x * i + origin.y * j + origin.z * k - ray.origin.x * i - ray.origin.y * j -
                           ray.origin.z * k) /
                          (ray.direction.x * i + ray.direction.y * j + ray.direction.z * k);
                 if ((ray.direction.x * c + ray.origin.x - origin.x) * i >= 0 &&
                     (ray.direction.y * c + ray.origin.y - origin.y) * j >= 0 &&
                     (ray.direction.z * c + ray.origin.z - origin.z) * k >= 0) {
-                    if(minC == -1 || minC > c){
+                    if (minC == -1 || minC > c) {
                         minC = c;
                     }
                 }
@@ -39,4 +39,5 @@ double Octahedron::intersectsRayAt(Ray &ray) {
     return minC;
 }
 
-Octahedron::Octahedron(const Vector3 &origin, double size) : origin(origin), size(size) {}
+Octahedron::Octahedron(const Vector3 &origin, const Color &color, double size) : origin(origin),
+                                                                                 size(size) { this->color = color; }

@@ -6,7 +6,10 @@
 class HittableObject {
 public:
     Color color;
-    virtual double intersectsRayAt(Ray& ray) = 0;
+
+    HittableObject() = default;
+
+    virtual double intersectsRayAt(Ray &ray) = 0;
 };
 
 
