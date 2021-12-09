@@ -10,6 +10,10 @@ public:
     HittableObject() = default;
 
     virtual double intersectsRayAt(Ray &ray) = 0;
+
+    virtual Ray specularReflection(Ray r){
+
+    }
 };
 
 

@@ -15,7 +15,7 @@
 
 using namespace std;
 
-const int SCREEN_WIDTH = 600;
+const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = static_cast<int>(SCREEN_WIDTH * 9.0 / 16.0);
 
 SDL_Window *window = NULL;
@@ -74,37 +74,32 @@ int main(int argc, char *args[]) {
 
             vector<HittableObject *> objects = {};
 
-            objects.push_back((HittableObject *) new Sphere({0, 0, 480}, 20, {255, 0, 0}));
-            objects.push_back((HittableObject *) new Sphere({0, 0, 480}, 20, {0, 255, 0}));
-            objects.push_back((HittableObject *) new Octahedron({0, 0, d + 100}, {0, 255, 255}, 50));
-            objects.push_back((HittableObject *) new Sphere({0, 0, 500}, 40, {0, 0, 255}));
+            objects.push_back((HittableObject *) new Sphere({-10, 0, 300}, 60, {255, 0, 0}));
+            objects.push_back((HittableObject *) new Sphere({50, 0, 370}, 60, {0, 255, 0}));
 
             // cout << "\n\n" << objects[2] << "\t\thll\n";
 
             auto *s1 = (Sphere *) objects[0];
             auto *s2 = (Sphere *) objects[1];
-            auto *s3 = (Sphere *) objects[3];
-            auto *oh = (Sphere *) objects[2];
 
-            double avgDist = 0;
             while (!done) {
                 SDL_SetWindowTitle(window, (to_string(i++ / ((SDL_GetTicks() - t0) / 1000.0)) + " fps").c_str());
                 SDL_GetMouseState(&mouseX, &mouseY);
 
                 Vector3 s;
 
-                int yy = mouseY + sin(i / 5.0) * SCREEN_HEIGHT / 4.0;
-                yy %= SCREEN_HEIGHT;
-                yy = abs(yy);
+                //int yy = mouseY + sin(i / 5.0) * SCREEN_HEIGHT / 4.0;
+                //yy %= SCREEN_HEIGHT;
+                //yy = abs(yy);
 
-                s = rays[mouseY][mouseX].direction * oh->origin.z / rays[mouseY][mouseX].direction.z;
+                /*s = rays[mouseY][mouseX].direction * oh->origin.z / rays[mouseY][mouseX].direction.z;
                 oh->origin.x = s.x;
                 oh->origin.y = s.y;
-
-                s = rays[yy][mouseX].direction * s1->origin.z / rays[yy][mouseX].direction.z;
+*/
+                s = rays[mouseY][mouseX].direction * s1->origin.z / rays[mouseY][mouseX].direction.z;
                 s1->origin.x = s.x; //mouseX / scale - w / 2;
                 s1->origin.y = s.y; // mouseY / scale - h / 2;
-
+/*
                 s = rays[yy][SCREEN_WIDTH - 1 - mouseX].direction * s2->origin.z /
                     rays[yy][SCREEN_WIDTH - 1 - mouseX].direction.z;
                 s2->origin.x = s.x;
@@ -114,7 +109,8 @@ int main(int argc, char *args[]) {
                 //sphere.origin.x = sin(i/10.0)* 300;
                 //sphere.origin.z = cos(i/10.0)* 300 + 1000;
 
-                //cout << "origin: " << sphere.origin.toString() << "; radius: " << sphere.radius << endl;
+                //cout << "origin: " << sphere.origin.toString() << "; radius: " << sphere.radius << endl;*/
+
                 SDL_UpdateTexture(t, NULL, &pixels, SCREEN_WIDTH * sizeof(Color));
 
                 SDL_RenderCopy(renderer, t, NULL, NULL);
@@ -126,6 +122,7 @@ int main(int argc, char *args[]) {
 
                 for (int y = 0; y < SCREEN_HEIGHT; ++y) {
                     for (int x = 0; x < SCREEN_WIDTH; ++x) {
+                        Ray &currentRay = rays[y][x];
                         Color bestColor;
                         double bestDistance;
                         bool found;
@@ -133,26 +130,47 @@ int main(int argc, char *args[]) {
                         bestColor = {0, 0, 0};
                         bestDistance = 0;
                         found = false;
-
+                        Sphere *bestSphere;
                         for (auto &object : objects) {
-                            double distance = object->intersectsRayAt(rays[y][x]);
+                            double distance = object->intersectsRayAt(currentRay);
                             if (distance >= 0 && (!found || distance < bestDistance)) {
                                 bestDistance = distance;
-                                bestColor = object->color;
+                                bestColor = object->color * 0.2;
                                 found = true;
+                                bestSphere = (Sphere *) object;
                             }
                         }
-/*
-                        auto dist = oh->intersectsRayAt(rays[y][x]);
-                        if (dist > 0) {
-                            //atomic_fetch_add(&distSumTimes100, static_cast<int>(dist * 100));
-                            //atomic_fetch_add(&newCount, 1);
 
-                            Uint8 color = 255 - min(255.0, max(0.0, 127 + (avgDist - dist) * 127.0 / 50.0));
-                            //cout << dist
-                            bestColor = {color, 0, 0};
+                        if (found) {
+                            auto &O = bestSphere->origin;
+                            auto &D = currentRay.direction;
+                            auto M = D * bestDistance;
+                            auto n = (M - O).normalize();
+                            auto e = n * ((D * -1) * n);
+                            auto D2 = (e * 2) + D;
+
+                            Ray r2(M, D2);
+
+                            Color bestColor2 = {0, 0, 0};
+                            bestDistance = 0;
+                            found = false;
+                            Sphere * bestSphere2;
+
+                            for (auto &object : objects) {
+                                double distance = object->intersectsRayAt(r2);
+                                if (distance >= 0 && (!found || distance < bestDistance) && object != bestSphere) {
+                                    bestDistance = distance;
+                                    bestColor2 = object->color;
+                                    found = true;
+                                    bestSphere2 = (Sphere *) object;
+                                }
+                            }
+
+                            if(found){
+                                bestColor += bestColor2 * 0.5;
+                            }
+
                         }
-*/
                         pixels[x + y * SCREEN_WIDTH] = bestColor;
 
 
@@ -166,7 +184,7 @@ int main(int argc, char *args[]) {
                 }
 
                 // cout << avgDist << endl;
-                avgDist = distSumTimes100 / 100.0 / (double) newCount;
+                // avgDist = distSumTimes100 / 100.0 / (double) newCount;
                 //SDL_Delay(10);
             }
             for (const auto &item : objects) {
