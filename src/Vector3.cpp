@@ -62,7 +62,7 @@ double &Vector3::operator[](size_t index) {
         case 2:
             return z;
         default:
-            throw "Invalid index"; // todo make a valid exception
+            throw "Invalid index"; // todo make color valid exception
     };
 }
 

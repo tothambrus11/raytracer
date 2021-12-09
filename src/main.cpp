@@ -26,7 +26,7 @@ const int pxcount = SCREEN_HEIGHT * SCREEN_WIDTH;
 int main(int argc, char *args[]) {
 
     cout << "hello world\n";
-    Color pixels[pxcount];
+    RGB255Color pixels[pxcount];
     array<array<Ray, SCREEN_WIDTH>, SCREEN_HEIGHT> rays;
 
     if (SDL_Init(SDL_INIT_VIDEO) == 0) {
@@ -74,9 +74,23 @@ int main(int argc, char *args[]) {
 
             vector<HittableObject *> objects = {};
 
-            objects.push_back((HittableObject *) new Sphere({-10, 0, 300}, 60, {255, 0, 0}));
-            objects.push_back((HittableObject *) new Sphere({50, 0, 370}, 60, {0, 255, 0}));
+            objects.push_back((HittableObject *) new Sphere({100, 100, 300}, 60, {1, 0, 0}, Material(
+                    {0.2, 0, 0},
+                    {.6,.2,.2},
+                    {.2},
+                    {128},
+                    {}
+            )));
+            objects.push_back((HittableObject *) new Sphere({0, 0, 370}, 60, {0, 1, 0}, Material(
+                    {0, 0.2, 0},
+                    {.2,.6,.2},
+                    {.2},
+                    {128},
+                    {}
+            )));
 
+            vector<PointLight *> lights = {};
+            lights.push_back(new PointLight({-300, -200, 200}, {1, 1, 1}));
             // cout << "\n\n" << objects[2] << "\t\thll\n";
 
             auto *s1 = (Sphere *) objects[0];
@@ -87,42 +101,43 @@ int main(int argc, char *args[]) {
                 SDL_GetMouseState(&mouseX, &mouseY);
 
                 Vector3 s;
+                s = rays[mouseY][mouseX].direction * lights[0]->origin.z / rays[mouseY][mouseX].direction.z;
+                lights[0]->origin.x = s.x; //mouseX / scale - w / 2;
+                lights[0]->origin.y = s.y; // mouseY / scale - h / 2;
 
-                //int yy = mouseY + sin(i / 5.0) * SCREEN_HEIGHT / 4.0;
-                //yy %= SCREEN_HEIGHT;
-                //yy = abs(yy);
-
-                /*s = rays[mouseY][mouseX].direction * oh->origin.z / rays[mouseY][mouseX].direction.z;
-                oh->origin.x = s.x;
-                oh->origin.y = s.y;
-*/
-                s = rays[mouseY][mouseX].direction * s1->origin.z / rays[mouseY][mouseX].direction.z;
-                s1->origin.x = s.x; //mouseX / scale - w / 2;
-                s1->origin.y = s.y; // mouseY / scale - h / 2;
-/*
-                s = rays[yy][SCREEN_WIDTH - 1 - mouseX].direction * s2->origin.z /
-                    rays[yy][SCREEN_WIDTH - 1 - mouseX].direction.z;
-                s2->origin.x = s.x;
-                s2->origin.y = s.y;
-                //sphere.origin.z = pow(sin(i / 30.0), 2) * 1000 + d;
-
-                //sphere.origin.x = sin(i/10.0)* 300;
-                //sphere.origin.z = cos(i/10.0)* 300 + 1000;
-
-                //cout << "origin: " << sphere.origin.toString() << "; radius: " << sphere.radius << endl;*/
-
-                SDL_UpdateTexture(t, NULL, &pixels, SCREEN_WIDTH * sizeof(Color));
+                SDL_UpdateTexture(t, NULL, &pixels, SCREEN_WIDTH * sizeof(RGB255Color));
 
                 SDL_RenderCopy(renderer, t, NULL, NULL);
                 SDL_RenderPresent(renderer);
 
-                atomic<int> distSumTimes100 = 0;
-                atomic<int> newCount = 0;
+                double minDistance; // reset for each pixel
+                HittableObject *nearestObject; // reset for each pixel
 
-
+                Color pixelColor;
                 for (int y = 0; y < SCREEN_HEIGHT; ++y) {
                     for (int x = 0; x < SCREEN_WIDTH; ++x) {
-                        Ray &currentRay = rays[y][x];
+                        Ray &ray = rays[y][x];
+
+                        nearestObject = nullptr;
+                        for (auto &object : objects) {
+                            double distance = object->intersectsRayAt(ray);
+                            if (distance > 0 && (nearestObject == nullptr || distance < minDistance)) {
+                                minDistance = distance;
+                                nearestObject = object;
+                            }
+                        }
+
+                        if (nearestObject != nullptr) {
+                            pixelColor = nearestObject->calculateEmittedLight(5, ray,
+                                                                              ray.origin + ray.direction * minDistance,
+                                                                              objects, lights);
+                        } else {
+                            pixelColor = {0, 0, 0};
+                        }
+
+                        pixels[x + y * SCREEN_WIDTH] = RGB255Color::from(pixelColor);
+
+                        /*
                         Color bestColor;
                         double bestDistance;
                         bool found;
@@ -132,7 +147,7 @@ int main(int argc, char *args[]) {
                         found = false;
                         Sphere *bestSphere;
                         for (auto &object : objects) {
-                            double distance = object->intersectsRayAt(currentRay);
+                            double distance = object->intersectsRayAt(ray);
                             if (distance >= 0 && (!found || distance < bestDistance)) {
                                 bestDistance = distance;
                                 bestColor = object->color * 0.2;
@@ -143,7 +158,7 @@ int main(int argc, char *args[]) {
 
                         if (found) {
                             auto &O = bestSphere->origin;
-                            auto &D = currentRay.direction;
+                            auto &D = ray.direction;
                             auto M = D * bestDistance;
                             auto n = (M - O).normalize();
                             auto e = n * ((D * -1) * n);
@@ -170,9 +185,7 @@ int main(int argc, char *args[]) {
                                 bestColor += bestColor2 * 0.5;
                             }
 
-                        }
-                        pixels[x + y * SCREEN_WIDTH] = bestColor;
-
+                        }*/
 
                     }
                 }

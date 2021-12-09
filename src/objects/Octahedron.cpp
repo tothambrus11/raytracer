@@ -41,3 +41,8 @@ double Octahedron::intersectsRayAt(Ray &ray) {
 
 Octahedron::Octahedron(const Vector3 &origin, const Color &color, double size) : origin(origin),
                                                                                  size(size) { this->color = color; }
+
+Color Octahedron::calculateEmittedLight(Uint8 remainingIterations, Ray &incomingRay, Vector3 intersectionPoint,
+                                        vector<HittableObject *> &objects, vector<PointLight *> &lights) {
+    return {1, 0, 0};
+}

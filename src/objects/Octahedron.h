@@ -11,6 +11,7 @@ public:
     double size;
 
     double intersectsRayAt(Ray &ray) override;
+
+    Color calculateEmittedLight(Uint8 remainingIterations, Ray &incomingRay, Vector3 intersectionPoint,
+                                vector<HittableObject *> &objects, vector<PointLight *> &lights) override;
 };
-
-

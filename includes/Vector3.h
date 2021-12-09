@@ -102,14 +102,14 @@ public:
     double operator*(Vector3 other) const;
 
     /**
-     * Multiply by a number
+     * Multiply by color number
      * @param s
      * @return
      */
     Vector3 operator*(double s) const;
 
     /**
-     * Divide by a number
+     * Divide by color number
      * @param a
      * @return
      */
