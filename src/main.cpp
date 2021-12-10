@@ -74,21 +74,21 @@ int main(int argc, char *args[]) {
 
             vector<HittableObject *> objects = {};
 
-            objects.push_back((HittableObject *) new Sphere({0, -120, 360}, 60, {1, 0, 0}, Material(
+            objects.push_back((HittableObject *) new Sphere({0, -120, 350}, 20, {1, 0, 0}, Material(
                     {.1, 0,0},
                     {.6, .05, .05},
                     {.4},
                     {128},
                     {.6}
             )));
-            objects.push_back((HittableObject *) new Sphere({0, 0, 360}, 60, {0, 0, 1}, Material(
+            objects.push_back((HittableObject *) new Sphere({0, 0, 500}, 60, {0, 0, 1}, Material(
                     {0, .1, 0},
                     {.05, .6, .05},
                     {.4},
                     {128},
                     {.6}
             )));
-            objects.push_back((HittableObject *) new Sphere({0, 120, 360}, 60, {0, 0, 1}, Material(
+            objects.push_back((HittableObject *) new Sphere({0, 120, 500}, 60, {0, 0, 1}, Material(
                     {0, 0, .1},
                     {.05, .05, .6},
                     {.4},
@@ -97,8 +97,8 @@ int main(int argc, char *args[]) {
             )));
 
             vector<PointLight *> lights = {};
-            lights.push_back(new PointLight({-300, -200, 200}, {1, 1, 1}));
-            lights.push_back(new PointLight({-300, -200, 200}, {1, 1, 1}));
+            lights.push_back(new PointLight({-300, -200, 300}, {1}));
+            lights.push_back(new PointLight({-300, -200, 350}, {1}));
 
             auto *s1 = (Sphere *) objects[0];
             auto *s2 = (Sphere *) objects[1];
@@ -111,10 +111,10 @@ int main(int argc, char *args[]) {
                 s = rays[mouseY][mouseX].direction * s1->origin.z / rays[mouseY][mouseX].direction.z;
                 lights[0]->origin.x = 200;//s.x; //mouseX / scale - w / 2;
                 lights[0]->origin.y = 0; //s.y; // mouseY / scale - h / 2;
-                lights[1]->origin.x = -200;//s.x-200; //mouseX / scale - w / 2;
-                lights[1]->origin.y = 0;//s.y; // mouseY / scale - h / 2;
-                //s1->origin.x = s.x;
-                //s1->origin.y = s.y;
+                lights[1]->origin.x = s.x; //s.x-200; //mouseX / scale - w / 2;
+                lights[1]->origin.y = s.y; //s.y; // mouseY / scale - h / 2;
+                s1->origin.x = s.x;
+                s1->origin.y = s.y;
 
                 SDL_UpdateTexture(t, NULL, &pixels, SCREEN_WIDTH * sizeof(RGB255Color));
 
