@@ -15,7 +15,7 @@
 
 using namespace std;
 
-const int SCREEN_WIDTH = 800;
+const int SCREEN_WIDTH = 1200;
 const int SCREEN_HEIGHT = static_cast<int>(SCREEN_WIDTH * 9.0 / 16.0);
 
 SDL_Window *window = NULL;
@@ -74,24 +74,31 @@ int main(int argc, char *args[]) {
 
             vector<HittableObject *> objects = {};
 
-            objects.push_back((HittableObject *) new Sphere({100, 100, 300}, 60, {1, 0, 0}, Material(
-                    {0.2, 0, 0},
-                    {.6,.2,.2},
-                    {.2},
+            objects.push_back((HittableObject *) new Sphere({0, -120, 360}, 60, {1, 0, 0}, Material(
+                    {.1, 0,0},
+                    {.6, .05, .05},
+                    {.4},
                     {128},
-                    {}
+                    {.6}
             )));
-            objects.push_back((HittableObject *) new Sphere({0, 0, 370}, 60, {0, 1, 0}, Material(
-                    {0, 0.2, 0},
-                    {.2,.6,.2},
-                    {.2},
+            objects.push_back((HittableObject *) new Sphere({0, 0, 360}, 60, {0, 0, 1}, Material(
+                    {0, .1, 0},
+                    {.05, .6, .05},
+                    {.4},
                     {128},
-                    {}
+                    {.6}
+            )));
+            objects.push_back((HittableObject *) new Sphere({0, 120, 360}, 60, {0, 0, 1}, Material(
+                    {0, 0, .1},
+                    {.05, .05, .6},
+                    {.4},
+                    {128},
+                    {.6}
             )));
 
             vector<PointLight *> lights = {};
             lights.push_back(new PointLight({-300, -200, 200}, {1, 1, 1}));
-            // cout << "\n\n" << objects[2] << "\t\thll\n";
+            lights.push_back(new PointLight({-300, -200, 200}, {1, 1, 1}));
 
             auto *s1 = (Sphere *) objects[0];
             auto *s2 = (Sphere *) objects[1];
@@ -101,9 +108,13 @@ int main(int argc, char *args[]) {
                 SDL_GetMouseState(&mouseX, &mouseY);
 
                 Vector3 s;
-                s = rays[mouseY][mouseX].direction * lights[0]->origin.z / rays[mouseY][mouseX].direction.z;
-                lights[0]->origin.x = s.x; //mouseX / scale - w / 2;
-                lights[0]->origin.y = s.y; // mouseY / scale - h / 2;
+                s = rays[mouseY][mouseX].direction * s1->origin.z / rays[mouseY][mouseX].direction.z;
+                lights[0]->origin.x = 200;//s.x; //mouseX / scale - w / 2;
+                lights[0]->origin.y = 0; //s.y; // mouseY / scale - h / 2;
+                lights[1]->origin.x = -200;//s.x-200; //mouseX / scale - w / 2;
+                lights[1]->origin.y = 0;//s.y; // mouseY / scale - h / 2;
+                //s1->origin.x = s.x;
+                //s1->origin.y = s.y;
 
                 SDL_UpdateTexture(t, NULL, &pixels, SCREEN_WIDTH * sizeof(RGB255Color));
 
@@ -137,56 +148,6 @@ int main(int argc, char *args[]) {
 
                         pixels[x + y * SCREEN_WIDTH] = RGB255Color::from(pixelColor);
 
-                        /*
-                        Color bestColor;
-                        double bestDistance;
-                        bool found;
-
-                        bestColor = {0, 0, 0};
-                        bestDistance = 0;
-                        found = false;
-                        Sphere *bestSphere;
-                        for (auto &object : objects) {
-                            double distance = object->intersectsRayAt(ray);
-                            if (distance >= 0 && (!found || distance < bestDistance)) {
-                                bestDistance = distance;
-                                bestColor = object->color * 0.2;
-                                found = true;
-                                bestSphere = (Sphere *) object;
-                            }
-                        }
-
-                        if (found) {
-                            auto &O = bestSphere->origin;
-                            auto &D = ray.direction;
-                            auto M = D * bestDistance;
-                            auto n = (M - O).normalize();
-                            auto e = n * ((D * -1) * n);
-                            auto D2 = (e * 2) + D;
-
-                            Ray r2(M, D2);
-
-                            Color bestColor2 = {0, 0, 0};
-                            bestDistance = 0;
-                            found = false;
-                            Sphere * bestSphere2;
-
-                            for (auto &object : objects) {
-                                double distance = object->intersectsRayAt(r2);
-                                if (distance >= 0 && (!found || distance < bestDistance) && object != bestSphere) {
-                                    bestDistance = distance;
-                                    bestColor2 = object->color;
-                                    found = true;
-                                    bestSphere2 = (Sphere *) object;
-                                }
-                            }
-
-                            if(found){
-                                bestColor += bestColor2 * 0.5;
-                            }
-
-                        }*/
-
                     }
                 }
 
@@ -195,10 +156,6 @@ int main(int argc, char *args[]) {
                         done = SDL_TRUE;
                     }
                 }
-
-                // cout << avgDist << endl;
-                // avgDist = distSumTimes100 / 100.0 / (double) newCount;
-                //SDL_Delay(10);
             }
             for (const auto &item : objects) {
                 //delete item;

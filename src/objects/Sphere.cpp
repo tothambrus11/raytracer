@@ -5,6 +5,7 @@
 #include <Ray.h>
 #include <PointLight.h>
 #include "Sphere.h"
+#include "iostream"
 
 using namespace std;
 
@@ -43,41 +44,58 @@ Color Sphere::calculateEmittedLight(Uint8 remainingIterations, Ray &incomingRay,
     if (remainingIterations == 0) {
         return {};
     }
+    if (remainingIterations <= 3) {
+        //cout << ((int) remainingIterations) << " ";
+    }
 
     auto n = (intersectionPoint - origin).normalize();
     auto e = n * ((incomingRay.direction * -1) * n);
-    auto D2 = (e * 2) + incomingRay.direction;
+    auto D2 = ((e * 2) + incomingRay.direction).normalize();
     Ray outgoingRay(intersectionPoint, D2);
 
+    if (remainingIterations == 4) {
+        //cout << intersectionPoint.toString() << " " << objects.size() << " " << lights.size() << endl;
+    }
     Color c;
 
     // ambient reflection
     c += material.color; // todo multiply with ambient light
 
-    // diffuse reflection
     for (PointLight *&light: lights) {
-        // todo check for shadows
+        // check for shadows
 
-       /* bool foundI = false;
+        bool foundI = false;
         for (auto o : objects) {
             Ray r = Ray(intersectionPoint, light->origin - intersectionPoint);
-            if (o != this && o->intersectsRayAt(r) > 0) {
+            if (o->intersectsRayAt(r) > 0 && o != this) {
                 foundI = true;
                 break;
             }
         }
-        if (foundI) { break; }*/
+        if (foundI) { continue; }
+
 
         auto L = (light->origin - intersectionPoint).normalize(); // direction to the light source
-        auto e2 = n * (L * n);
-        if(L * n < 0){
-            break;
+        // diffuse reflection
+
+        auto lightDirNormalVecCos = L * n;
+        if (lightDirNormalVecCos < 0) continue;
+
+        c += material.d * light->color * lightDirNormalVecCos;
+        if (remainingIterations == 4) {
+          //  cout << "l1 \n";
         }
+
+        auto e2 = n * lightDirNormalVecCos;
         auto LReflection = (e2 * 2 - L).normalize();
+        if (LReflection * incomingRay.direction > 0) {
+            continue;
+        }
+        if (remainingIterations == 4) {
+           /// cout << "l2 ";
+        }
 
-        c += (material.d * light->color * (L * n)).minZero();
-
-        c += (material.s * pow(LReflection * incomingRay.direction * -1, 16) * light->color).minZero();
+        c += (material.s * pow(LReflection * incomingRay.direction *-1, 128) * light->color).minZero();
 
     }
 
@@ -85,7 +103,7 @@ Color Sphere::calculateEmittedLight(Uint8 remainingIterations, Ray &incomingRay,
     double minDistance;
     for (auto &object : objects) {
         double distance = object->intersectsRayAt(outgoingRay);
-        if (distance >= 0 && (nearestObject == nullptr || distance < minDistance) && object != this) {
+        if (distance > 0 && (nearestObject == nullptr || distance < minDistance) && object != this) {
             minDistance = distance;
             nearestObject = object;
         }
@@ -93,8 +111,8 @@ Color Sphere::calculateEmittedLight(Uint8 remainingIterations, Ray &incomingRay,
 
     if (nearestObject != nullptr) {
         Color noc = nearestObject->calculateEmittedLight(remainingIterations - 1, outgoingRay,
-                                                         outgoingRay.direction * minDistance, objects, lights);
-        //c += noc * material.reflection;
+                                                         outgoingRay.direction * minDistance + outgoingRay.origin, objects, lights);
+        c += (noc * material.reflection);
     }
 
     return c;
