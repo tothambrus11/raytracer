@@ -74,26 +74,33 @@ int main(int argc, char *args[]) {
 
             vector<HittableObject *> objects = {};
 
-            objects.push_back((HittableObject *) new Sphere({0, -120, 350}, 20, {1, 0, 0}, Material(
-                    {.1, 0,0},
-                    {.6, .05, .05},
-                    {.4},
+            objects.push_back((HittableObject *) new Sphere({0, 40, 500}, 100, {1, 0, 0}, Material(
+                    {.1, .1,.0},
+                    {.6,.6,0},
+                    {.5},
                     {128},
-                    {.6}
+                    {.9}
             )));
-            objects.push_back((HittableObject *) new Sphere({0, 0, 500}, 60, {0, 0, 1}, Material(
-                    {0, .1, 0},
-                    {.05, .6, .05},
+            objects.push_back((HittableObject *) new Sphere({-120, 0, 500}, 60, {0, 0, 0}, Material(
+                    {0, .0, 0.1},
+                    {.05,.05,.6},
                     {.4},
                     {128},
-                    {.6}
+                    {.8}
             )));
-            objects.push_back((HittableObject *) new Sphere({0, 120, 500}, 60, {0, 0, 1}, Material(
-                    {0, 0, .1},
-                    {.05, .05, .6},
+            objects.push_back((HittableObject *) new Sphere({0, 60, 500}, 60, {0, 0, 0}, Material(
+                    {0, .1, .1},
+                    {.05,.6,.6},
                     {.4},
                     {128},
-                    {.6}
+                    {.8}
+                    )));
+            objects.push_back((HittableObject *) new Sphere({120, 0, 500}, 60, {0, 0, 1}, Material(
+                    {.1, .0, .0},
+                    {.6,.05,.05},
+                    {.4},
+                    {128},
+                    {.8}
             )));
 
             vector<PointLight *> lights = {};
@@ -111,8 +118,8 @@ int main(int argc, char *args[]) {
                 s = rays[mouseY][mouseX].direction * s1->origin.z / rays[mouseY][mouseX].direction.z;
                 lights[0]->origin.x = 200;//s.x; //mouseX / scale - w / 2;
                 lights[0]->origin.y = 0; //s.y; // mouseY / scale - h / 2;
-                lights[1]->origin.x = s.x; //s.x-200; //mouseX / scale - w / 2;
-                lights[1]->origin.y = s.y; //s.y; // mouseY / scale - h / 2;
+                //lights[1]->origin.x = s.x; //s.x-200; //mouseX / scale - w / 2;
+                //lights[1]->origin.y = s.y; //s.y; // mouseY / scale - h / 2;
                 s1->origin.x = s.x;
                 s1->origin.y = s.y;
 

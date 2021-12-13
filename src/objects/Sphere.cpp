@@ -95,7 +95,7 @@ Color Sphere::calculateEmittedLight(Uint8 remainingIterations, Ray &incomingRay,
            /// cout << "l2 ";
         }
 
-        c += (material.s * pow(LReflection * incomingRay.direction *-1, 128) * light->color).minZero();
+        c += (material.s * pow(LReflection * incomingRay.direction *-1, 16) * light->color).minZero();
 
     }
 
