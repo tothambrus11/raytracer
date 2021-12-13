@@ -1,5 +1,6 @@
-# Ray tracer from scratch
-- uses SDL to draw the pixels
+# Implementing a 3D Renderer From Scratch Using C++
+- I use the SDL library to draw the pixels onto the screen
+- Multithreading is currently not implemented, but it runs at 2-3 fps on my laptop's cpu.
 
 ## The Phong Reflection Model
 https://en.wikipedia.org/wiki/Phong_reflection_model
@@ -59,3 +60,12 @@ an infinite amount of time to compute one pixel if it is an arrangement of objec
 
 ![](assets/reflection2.jpg)
 
+
+## TO-DO List
+- implement multithreading
+- implement other types of objects
+    - inside out sphere -> create a surrounding mirror :D
+    - plane
+    - cylinder
+- add the ability to move and rotate the camera
+- light refraction
