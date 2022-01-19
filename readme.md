@@ -69,7 +69,3 @@ an infinite amount of time to compute one pixel if it is an arrangement of objec
     - cylinder
 - add the ability to move and rotate the camera
 - light refraction
-
-
-# New title
-valami
