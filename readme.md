@@ -13,10 +13,10 @@ We can specify the color of each object, and we get the color of a pixel by mult
 ![](assets/ambient.png)
 
 ### Diffuse Reflection
-The light bounces back from the surface in all directions. Therefore, it doesn't matter from which direction do we
+The light bounces back fromTo the surface in all directions. Therefore, it doesn't matter fromTo which direction do we
 look at the object, it will look the same. The amount of scattered light on a point of the
 surface is proportional to the cosine of the angle between the surface normal vector and
-the light's direction. The light coming from perpendicular to the object surface gets reflected 
+the light's direction. The light coming fromTo perpendicular to the object surface gets reflected 
 the most, and the light travelling parallel to the surface doesn't get reflected by any means.
 
 ![](assets/diffuse.png)
@@ -30,8 +30,8 @@ Now we can clearly see the boundaries of the objects:
 
 ### Specular Reflection
 There are surfaces which scatter light almost like regular reflection.
-In this case, the light emitted towards us changes if we look from different directions. 
-The brightest reflection will be from the direction that would be the regularly reflected direction of the light source.
+In this case, the light emitted towards us changes if we look fromTo different directions. 
+The brightest reflection will be fromTo the direction that would be the regularly reflected direction of the light source.
 
 The specular reflection is usually not affected by the color of the object, so the reflected light should be the same as
 incoming light's color, multiplied by some factor.

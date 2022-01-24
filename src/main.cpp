@@ -11,8 +11,8 @@
 #include <objects/Octahedron.h>
 #include <atomic>
 #include "array"
-#include "thread"
 #include "objects/Cylinder.h"
+#include "objects/CylinderInsideOut.h"
 
 using namespace std;
 
@@ -49,7 +49,7 @@ int main(int argc, char *args[]) {
                                                SDL_TEXTUREACCESS_STATIC,
                                                SCREEN_WIDTH, SCREEN_HEIGHT);
 
-            for (auto & pixel : pixels) {
+            for (auto &pixel: pixels) {
                 pixel = {0, 0, 0};
             }
 
@@ -78,68 +78,98 @@ int main(int argc, char *args[]) {
 
             vector<HittableObject *> objects = {};
 
-            objects.push_back((HittableObject *) new Sphere({200, 100, 600}, 200, {0}, Material(
+           /* objects.push_back((HittableObject *) new Sphere({-100, 100, 800}, 200, Material(
                     {.1, .1, .1},
-                    {.6,.6,.6},
+                    {.6, .6, .6},
                     {.4},
                     {128},
                     {.8}
             )));
-            objects.push_back((HittableObject *) new Sphere({120, 0, 500}, 60, {0}, Material(
+            objects.push_back((HittableObject *) new Sphere({0, 0, 500}, 60, Material(
                     {.1, .0, .0},
-                    {.6,.05,.05},
-                    {.4},
-                    {128},
-                    {.8}
-            )));      objects.push_back((HittableObject *) new Sphere({120, -60, 500}, 60, {0}, Material(
-                    {.1, .0, .0},
-                    {.6,.05,.05},
+                    {.6, .05, .05},
                     {.4},
                     {128},
                     {.8}
             )));
-            objects.push_back((HittableObject *) new Sphere({120, -120, 500}, 40, {0}, Material(
+            objects.push_back((HittableObject *) new Sphere({0, -60, 500}, 60, Material(
+                    {.1, .0, .0},
+                    {.6, .05, .05},
+                    {.4},
+                    {128},
+                    {.8}
+            )));
+            objects.push_back((HittableObject *) new Sphere({0, -120, 500}, 40, Material(
                     {.0, .1, .0},
-                    {.05,.5,.05},
+                    {.05, .5, .05},
                     {.4},
                     {128},
                     {.8}
             )));
-            objects.push_back((HittableObject *) new Cylinder({200, 200, 500}, 60,150,-60, {0}, Material(
-                    {.1,0, 0},
-                    {.01,0,0},
+            objects.push_back((HittableObject *) new Cylinder({200, 200, 700}, 100, 400, 0, Material(
+                    {.1, 0, 0},
+                    {.6, 0, 0},
                     {.4},
                     {128},
                     {.8}
-                    )));
-            objects.push_back((HittableObject *) new Cylinder({200, 200, 500}, 20,200,-100, {0}, Material(
-                    {.1,0, 0},
-                    {.01,0,0},
+            )));
+            objects.push_back((HittableObject *) new CylinderInsideOut({200, 200, 700}, 99, 400, 0, Material(
+                    {0, .0, .05},
+                    {.05, .05, .2},
                     {.4},
                     {128},
                     {.8}
-                    )));
+            )));*/
 
+
+            objects.push_back((HittableObject *) new Cylinder({0, 0, 400}, 200, 100, 0, Material(
+                    {.05},
+                    {.0},
+                    {.9},
+                    {128},
+                    {.9}
+            )));
+            objects.push_back((HittableObject *) new CylinderInsideOut({0, 0, 400}, 199, 100, 0, Material(
+                    {.2, .2, .05},
+                    {.0},
+                    {.9},
+                    {128},
+                    {.9}
+            )));
+            auto *cylinder = (Cylinder *) objects[0];
+
+            double rad = 200000;
+            objects.push_back((HittableObject*) new Sphere({0,0,cylinder->origin.z + cylinder->topZ+rad}, rad, {
+                    {.05},
+                    {.1},
+                    {.2},
+                    {128},
+                    {.01}
+            }));
 
             vector<PointLight *> lights = {};
-            lights.push_back(new PointLight({-400,  0, 500}, {1, 1, 1}));
+            lights.push_back(new PointLight({-400, 0, -4000}, {1, 1, 1}));
 
-
-            auto *s1 = (Cylinder *) objects[4];
-            auto *s2 = (Sphere *) objects[0];
+            //auto *s1 = (Cylinder *) objects[4];
+            //auto *s3 = (CylinderInsideOut *) objects[5];
+            //auto *s2 = (Sphere *) objects[0];
 
             while (!done) {
                 SDL_SetWindowTitle(window, (to_string(i++ / ((SDL_GetTicks() - t0) / 1000.0)) + " fps").c_str());
                 SDL_GetMouseState(&mouseX, &mouseY);
 
                 Vector3 s;
-                s = rays[mouseY][mouseX].direction * s2->origin.z / rays[mouseY][mouseX].direction.z;
+                s = rays[mouseY][mouseX].direction * lights[0]->origin.z / rays[mouseY][mouseX].direction.z;
                 //lights[0]->origin.x = 200;//s.x; //mouseX / scale - w / 2;
                 //lights[0]->origin.y = 0; //s.y; // mouseY / scale - h / 2;
-                //lights[0]->origin.x = s.x; //s.x-200; //mouseX / scale - w / 2;
-                //lights[0]->origin.y = s.y; //s.y; // mouseY / scale - h / 2;
-                s2->origin.x = s.x;
-                s2->origin.y = s.y;
+                lights[0]->origin.x = -s.x*5; //s.x-200; //mouseX / scale - w / 2;
+                lights[0]->origin.y = -s.y*5; //s.y; // mouseY / scale - h / 2;
+                //s1->origin.x = s.x;
+                //s1->origin.y = s.y;
+                //s3->origin.x = s.x;
+                //s3->origin.y = s.y;
+
+
 
                 SDL_Delay(10);
 
@@ -152,7 +182,7 @@ int main(int argc, char *args[]) {
                         Ray &ray = rays[y][x];
 
                         nearestObject = nullptr;
-                        for (auto &object : objects) {
+                        for (auto &object: objects) {
                             double distance = object->intersectsRayAt(ray);
                             if (distance > 0 && (nearestObject == nullptr || distance < minDistance)) {
                                 minDistance = distance;
@@ -161,7 +191,7 @@ int main(int argc, char *args[]) {
                         }
 
                         if (nearestObject != nullptr) {
-                            pixelColor = nearestObject->calculateEmittedLight(5, ray,
+                            pixelColor = nearestObject->calculateEmittedLight(10, ray,
                                                                               ray.origin + ray.direction * minDistance,
                                                                               objects, lights);
                         } else {

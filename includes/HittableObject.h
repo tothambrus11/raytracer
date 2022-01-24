@@ -9,7 +9,6 @@
 
 class HittableObject {
 public:
-    Color color;
     Material material;
 
     HittableObject() = default;
@@ -17,8 +16,8 @@ public:
     virtual double intersectsRayAt(Ray &ray) = 0;
 
     Color calculateEmittedLight(Uint8 remainingIterations, Ray &incomingRay, Vector3 intersectionPoint,
-                                        vector<HittableObject *> &objects, vector<PointLight *> &lights) = 0;
-    virtual double getNormalVector() = 0;
+                                        vector<HittableObject *> &objects, vector<PointLight *> &lights);
+    virtual Vector3 getNormalVector(Vector3 &intersectionPoint) = 0;
 };
 
 

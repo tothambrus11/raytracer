@@ -10,12 +10,11 @@ public:
     Vector3 origin;
 
     double radius;
-    Sphere(const Vector3 &origin, double radius, Color c, Material material);
+    Sphere(const Vector3 &origin, double radius, Material material);
 
     double intersectsRayAt(Ray &ray) override;
 
-    Color calculateEmittedLight(Uint8 remainingIterations, Ray &incomingRay, Vector3 intersectionPoint,
-                                vector<HittableObject *> &objects, vector<PointLight *> &lights) override;
+    Vector3 getNormalVector(Vector3 &intersectionPoint) override;
 };
 
 

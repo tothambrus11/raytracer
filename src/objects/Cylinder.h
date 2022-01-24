@@ -4,20 +4,19 @@
 
 class Cylinder : HittableObject {
     double bottomZ;
-    double topZ;
 
     double radius;
 
 
-    double intersectsRayAt(Ray &ray) override;
-
-    bool isGoodZ(double z) const;
-
-    Color calculateEmittedLight(Uint8 remainingIterations, Ray &incomingRay, Vector3 intersectionPoint,
-                                vector<HittableObject *> &objects, vector<PointLight *> &lights) override;
+    [[nodiscard]] bool isGoodZ(double z) const;
 
 public:
-    Cylinder(const Vector3 &origin, double radius,double topZ, double bottomZ, Color c, Material material);
+    Cylinder(const Vector3 &origin, double radius,double topZ, double bottomZ, Material material);
+
+    Vector3 getNormalVector(Vector3 &intersectionPoint) override;
+
+    double intersectsRayAt(Ray &ray) override;
 
     Vector3 origin;
+    double topZ;
 };

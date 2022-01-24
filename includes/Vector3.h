@@ -6,6 +6,7 @@
 
 class Vector3 {
 public:
+
     Vector3(double x, double y, double z) : x(x), y(y), z(z) {}
     Vector3();
 
@@ -120,4 +121,8 @@ public:
     [[nodiscard]] double sq() const;
 
     std::string toString();
+
+    inline static Vector3 fromTo(Vector3 from, Vector3 to){
+        return to - from;
+    }
 };
