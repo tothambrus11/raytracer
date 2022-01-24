@@ -65,9 +65,11 @@ Color Sphere::calculateEmittedLight(Uint8 remainingIterations, Ray &incomingRay,
         // check for shadows
 
         bool foundI = false;
+        double lightDistance = (light->origin - intersectionPoint).length();
         for (auto o : objects) {
-            Ray r = Ray(intersectionPoint, light->origin - intersectionPoint);
-            if (o->intersectsRayAt(r) > 0 && o != this) {
+            Ray r = Ray(intersectionPoint, (light->origin - intersectionPoint).normalize());
+            double i = o->intersectsRayAt(r);
+            if (i > 0 && i <= lightDistance && o != this) {
                 foundI = true;
                 break;
             }
