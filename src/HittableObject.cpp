@@ -69,7 +69,7 @@ Color HittableObject::calculateEmittedLight(Uint8 remainingIterations, Ray &inco
     double minDistance;
     for (auto &object: objects) {
         double distance = object->intersectsRayAt(outgoingRay);
-        if (distance > 0 && (nearestObject == nullptr || distance < minDistance) && object != this) {
+        if (distance > 0.1 && (nearestObject == nullptr || distance < minDistance) /*&& object != this*/) {
             minDistance = distance;
             nearestObject = object;
         }

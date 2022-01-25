@@ -124,31 +124,35 @@ int main(int argc, char *args[]) {
 
             objects.push_back((HittableObject *) new Cylinder({0, 0, 400}, 200, 100, 0, Material(
                     {.05},
-                    {.0},
-                    {.9},
+                    {.6},
+                    {.4},
                     {128},
-                    {.9}
+                    {.5}
             )));
             objects.push_back((HittableObject *) new CylinderInsideOut({0, 0, 400}, 199, 100, 0, Material(
                     {.2, .2, .05},
-                    {.0},
-                    {.9},
+                    {.4},
+                    {.4},
                     {128},
-                    {.9}
+                    {.5}
             )));
             auto *cylinder = (Cylinder *) objects[0];
 
             double rad = 200000;
             objects.push_back((HittableObject*) new Sphere({0,0,cylinder->origin.z + cylinder->topZ+rad}, rad, {
-                    {.05},
+                    {.15},
                     {.1},
                     {.2},
                     {128},
-                    {.01}
+                    {.5}
             }));
 
+
+
+
             vector<PointLight *> lights = {};
-            lights.push_back(new PointLight({-400, 0, -4000}, {1, 1, 1}));
+            lights.push_back(new PointLight({0, 0, -8000}, {0}));
+            lights.push_back(new PointLight({0, 0, -8000}, {1}));
 
             //auto *s1 = (Cylinder *) objects[4];
             //auto *s3 = (CylinderInsideOut *) objects[5];
@@ -162,8 +166,12 @@ int main(int argc, char *args[]) {
                 s = rays[mouseY][mouseX].direction * lights[0]->origin.z / rays[mouseY][mouseX].direction.z;
                 //lights[0]->origin.x = 200;//s.x; //mouseX / scale - w / 2;
                 //lights[0]->origin.y = 0; //s.y; // mouseY / scale - h / 2;
-                lights[0]->origin.x = -s.x*5; //s.x-200; //mouseX / scale - w / 2;
-                lights[0]->origin.y = -s.y*5; //s.y; // mouseY / scale - h / 2;
+                lights[0]->origin.x = -s.x*5+10; //s.x-200; //mouseX / scale - w / 2;
+                lights[1]->origin.x = -s.x*5; //s.x-200; //mouseX / scale - w / 2;
+                lights[0]->origin.y = -s.y*5+100; //s.y; // mouseY / scale - h / 2;
+                lights[1]->origin.y = -s.y*5; //s.y; // mouseY / scale - h / 2;
+                //lamp->origin.x = -s.x*15; //s.x-200; //mouseX / scale - w / 2;
+                //lamp->origin.y = -s.y*15; //s.y; // mouseY / scale - h / 2;
                 //s1->origin.x = s.x;
                 //s1->origin.y = s.y;
                 //s3->origin.x = s.x;
@@ -191,7 +199,7 @@ int main(int argc, char *args[]) {
                         }
 
                         if (nearestObject != nullptr) {
-                            pixelColor = nearestObject->calculateEmittedLight(10, ray,
+                            pixelColor = nearestObject->calculateEmittedLight(14, ray,
                                                                               ray.origin + ray.direction * minDistance,
                                                                               objects, lights);
                         } else {
