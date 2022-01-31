@@ -11,30 +11,137 @@ double Cylinder::intersectsRayAt(Ray &ray) {
     // (O_x+D_x*t-u)**2 + (O_y+D_y*t-v)**2 = r**2;
     // P=O+D*t
 
-    double D_x = ray.direction.x;
-    double D_y = ray.direction.y;
-    double O_x = ray.origin.x;
-    double O_y = ray.origin.y;
+    // (a*(o_x+d_x*i-u)+b*(o_y+d_y*i-v)+c*(o_z+d_z*i-w))^2 + (d*(o_x+d_x*i-u)+e*(o_y+d_y*i-v)+f*(o_z+d_z*i-w))^2 - r*r = 0
 
-    double a=1;
-    double b=0;
-    double c=0;
-    double d=0;
-    double e=1;
-    double f=0;
-    double g=0;
-    double h=0;
-    double i=1;
+    double d_x = ray.direction.x;
+    double d_y = ray.direction.y;
+    double d_z = ray.direction.z;
+    double o_x = ray.origin.x;
+    double o_y = ray.origin.y;
+    double o_z = ray.origin.z;
 
-    double discriminant = pow(-2 * D_x * O_x + 2 * D_x * origin.x - 2 * D_y * O_y + 2 * D_y * origin.y, 2) -
-                          4 * (-D_x * D_x - D_y * D_y) *
-                          (-O_x * O_x + 2 * O_x * origin.x - O_y * O_y + 2 * O_y * origin.y + radius * radius -
-                           origin.x * origin.x - origin.y * origin.y);
-    if (discriminant < 0) return -1;
-    double i1 = (-sqrt(discriminant) + 2 * D_x * O_x - 2 * D_x * origin.x + 2 * D_y * O_y - 2 * D_y * origin.y) /
-                (2 * (-D_x * D_x - D_y * D_y));
-    double i2 = (sqrt(discriminant) + 2 * D_x * O_x - 2 * D_x * origin.x + 2 * D_y * O_y - 2 * D_y * origin.y) /
-                (2 * (-D_x * D_x - D_y * D_y));
+    double a = 0;
+    double b = 0;
+    double c = 1;
+    double d = 0;
+    double e = 1;
+    double f = 0;
+    double g = -1;
+    double h = 0;
+    double i = 0;
+
+    double u = origin.x;
+    double v = origin.y;
+    double w = origin.z;
+
+    double r = radius;
+
+
+    double coeff_c =
+            - 2 * a * a * o_x * u
+            - 2 * b * b * o_y * v
+            - 2 * c * c * o_z * w
+            - 2 * d * d * o_x * u
+            - 2 * e * e * o_y * v
+            - 2 * f * f * o_z * w
+            + a * a * o_x * o_x
+            + a * a * u * u
+            + b * b * o_y * o_y
+            + b * b * v * v
+            + c * c * o_z * o_z
+            + c * c * w * w
+            + d * d * o_x * o_x
+            + d * d * u * u
+            + e * e * o_y * o_y
+            + e * e * v * v
+            + f * f * o_z * o_z
+            + f * f * w * w
+            - r * r
+            + 2 * a * o_x * b * o_y
+            - 2 * a * o_x * b * v
+            + 2 * a * o_x * c * o_z
+            - 2 * a * o_x * c * w
+            - 2 * a * u * b * o_y
+            + 2 * a * u * b * v
+            - 2 * a * u * c * o_z
+            + 2 * a * u * c * w
+            + 2 * b * o_y * c * o_z
+            - 2 * b * o_y * c * w
+            - 2 * b * v * c * o_z
+            + 2 * b * v * c * w
+            + 2 * d * o_x * e * o_y
+            - 2 * d * o_x * e * v
+            + 2 * d * o_x * f * o_z
+            - 2 * d * o_x * f * w
+            - 2 * d * u * e * o_y
+            + 2 * d * u * e * v
+            - 2 * d * u * f * o_z
+            + 2 * d * u * f * w
+            + 2 * e * o_y * f * o_z
+            - 2 * e * o_y * f * w
+            - 2 * e * v * f * o_z
+            + 2 * e * v * f * w
+    ;
+    double coeff_b =
+            + 2 * a * a * d_x * o_x
+            - 2 * a * a * d_x * u
+            + 2 * b * b * d_y * o_y
+            - 2 * b * b * d_y * v
+            + 2 * c * c * d_z * o_z
+            - 2 * c * c * d_z * w
+            + 2 * d * d * d_x * o_x
+            - 2 * d * d * d_x * u
+            + 2 * e * e * d_y * o_y
+            - 2 * e * e * d_y * v
+            + 2 * f * f * d_z * o_z
+            - 2 * f * f * d_z * w
+            + 2 * a * d_x * b * o_y
+            - 2 * a * d_x * b * v
+            + 2 * a * d_x * c * o_z
+            - 2 * a * d_x * c * w
+            + 2 * b * d_y * a * o_x
+            - 2 * b * d_y * a * u
+            + 2 * b * d_y * c * o_z
+            - 2 * b * d_y * c * w
+            + 2 * c * d_z * a * o_x
+            - 2 * c * d_z * a * u
+            + 2 * c * d_z * b * o_y
+            - 2 * c * d_z * b * v
+            + 2 * d * d_x * e * o_y
+            - 2 * d * d_x * e * v
+            + 2 * d * d_x * f * o_z
+            - 2 * d * d_x * f * w
+            + 2 * e * d_y * d * o_x
+            - 2 * e * d_y * d * u
+            + 2 * e * d_y * f * o_z
+            - 2 * e * d_y * f * w
+            + 2 * f * d_z * d * o_x
+            - 2 * f * d_z * d * u
+            + 2 * f * d_z * e * o_y
+            - 2 * f * d_z * e * v
+    ;
+    double coeff_a =
+            2 * a * d_x * b * d_y
+            + 2 * a * d_x * c * d_z
+            + 2 * b * d_y * c * d_z
+            + 2 * d * d_x * e * d_y
+            + 2 * d * d_x * f * d_z
+            + 2 * e * d_y * f * d_z
+            + a * a * d_x * d_x
+            + b * b * d_y * d_y
+            + c * c * d_z * d_z
+            + d * d * d_x * d_x
+            + e * e * d_y * d_y
+            + f * f * d_z * d_z
+    ;
+
+
+
+    double discriminant = coeff_b * coeff_b - 4 * coeff_a * coeff_c;
+    if (discriminant <= 0) return -1;
+
+    double i1 = (-coeff_b - sqrt(discriminant)) / (2.0 * coeff_a);
+    double i2 = (-coeff_b + sqrt(discriminant)) / (2.0 * coeff_a);
 
     Vector3 ipoint1 = ray.direction * i1 + ray.origin;
     Vector3 ipoint2 = ray.direction * i2 + ray.origin;
@@ -52,11 +159,12 @@ double Cylinder::intersectsRayAt(Ray &ray) {
 
 
 bool Cylinder::isGoodZ(double z) const {
+    return true;
     return (z <= topZ + origin.z) && (z >= bottomZ + origin.z);
 }
 
 Vector3 Cylinder::getNormalVector(Vector3 &intersectionPoint) {
     auto n = Vector3::fromTo(origin, intersectionPoint);
-    n.z = 0;
+    n.x=0; // todo normálisan
     return n._normalize();
 }

@@ -79,20 +79,20 @@ int main(int argc, char *args[]) {
             vector<HittableObject *> objects = {};
 
 
-            objects.push_back((HittableObject *) new Cylinder({0, 0, 600}, 200, 300, 0, Material(
-                    {.1, .05, .05},
+            objects.push_back((HittableObject *) new Cylinder({0, 0, 600}, 100, 300, 0, Material(
+                    {.05, 0, 0},
                     {.6, .05, .05},
                     {.4},
                     {128},
                     {.5}
             )));
-            objects.push_back((HittableObject *) new CylinderInsideOut({0, 0, 600}, 199, 300, 0, Material(
+            /*objects.push_back((HittableObject *) new CylinderInsideOut({0, 0, 600}, 199, 300, 0, Material(
                     {.2, .2, .05},
                     {.4, .4, .05},
                     {.4},
                     {128},
                     {.5}
-            )));
+            )));*/
 
             objects.push_back((HittableObject*) new Sphere({200,200,750}, 100, {
                     {0,0,.15},
@@ -107,7 +107,7 @@ int main(int argc, char *args[]) {
             lights.push_back(new PointLight({0, 0, 0}, {1}));
 
             auto *s1 = (Cylinder *) objects[0];
-            auto *s3 = (CylinderInsideOut *) objects[1];
+            //auto *s3 = (CylinderInsideOut *) objects[1];
             //auto *s2 = (Sphere *) objects[0];
 
             while (!done) {
@@ -124,10 +124,11 @@ int main(int argc, char *args[]) {
                 //lights[1]->origin.y = -s.y*5; //s.y; // mouseY / scale - h / 2;
                 //lamp->origin.x = -s.x*15; //s.x-200; //mouseX / scale - w / 2;
                 //lamp->origin.y = -s.y*15; //s.y; // mouseY / scale - h / 2;
-                s1->origin.x = s.x;
+                s1->origin.x = 200;
                 s1->origin.y = s.y;
-                s3->origin.x = s.x;
-                s3->origin.y = s.y;
+                s1->origin.z = 750;// mouseX;
+                //s3->origin.x = s.x;
+                //s3->origin.y = s.y;
 
 
 
