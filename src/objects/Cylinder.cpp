@@ -15,6 +15,17 @@ double Cylinder::intersectsRayAt(Ray &ray) {
     double D_y = ray.direction.y;
     double O_x = ray.origin.x;
     double O_y = ray.origin.y;
+
+    double a=1;
+    double b=0;
+    double c=0;
+    double d=0;
+    double e=1;
+    double f=0;
+    double g=0;
+    double h=0;
+    double i=1;
+
     double discriminant = pow(-2 * D_x * O_x + 2 * D_x * origin.x - 2 * D_y * O_y + 2 * D_y * origin.y, 2) -
                           4 * (-D_x * D_x - D_y * D_y) *
                           (-O_x * O_x + 2 * O_x * origin.x - O_y * O_y + 2 * O_y * origin.y + radius * radius -

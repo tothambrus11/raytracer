@@ -8,6 +8,7 @@ MATH(EXPR stack_size "100 * 1024 * 1024")
 include_directories(includes src)
 link_libraries(SDL2 SDL2main)
 
+
 add_executable(renderer1
         src/main.cpp
         src/Vector3.cpp
