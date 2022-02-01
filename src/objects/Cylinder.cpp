@@ -1,5 +1,5 @@
 #include "Cylinder.h"
-
+#include "MyMatrixFunctions.h"
 
 Cylinder::Cylinder(const Vector3 &origin, double radius, double topZ, double bottomZ, Material material)
         : origin(origin), radius(radius), topZ(topZ), bottomZ(bottomZ) {
@@ -12,6 +12,7 @@ double Cylinder::intersectsRayAt(Ray &ray) {
     // P=O+D*t
 
     // (a*(o_x+d_x*i-u)+b*(o_y+d_y*i-v)+c*(o_z+d_z*i-w))^2 + (d*(o_x+d_x*i-u)+e*(o_y+d_y*i-v)+f*(o_z+d_z*i-w))^2 - r*r = 0
+    // (a*(o_x+d_x*x-u)+b*(o_y+d_y*x-v)+c*(o_z+d_z*x-w))^2 + (d*(o_x+d_x*x-u)+e*(o_y+d_y*x-v)+f*(o_z+d_z*x-w))^2 - r*r = 0
 
     double d_x = ray.direction.x;
     double d_y = ray.direction.y;
@@ -20,25 +21,24 @@ double Cylinder::intersectsRayAt(Ray &ray) {
     double o_y = ray.origin.y;
     double o_z = ray.origin.z;
 
-    double a = 0;
-    double b = 0;
-    double c = 1;
-    double d = 0;
-    double e = 1;
-    double f = 0;
-    double g = -1;
-    double h = 0;
-    double i = 0;
+    const double a = rotation(0, 0);
+    const double b = rotation(1, 0);
+    const double c = rotation(2, 0);
+    const double d = rotation(0, 1);
+    const double e = rotation(1, 1);
+    const double f = rotation(2, 1);
+    const double g = rotation(0, 2);
+    const double h = rotation(1, 2);
+    const double i = rotation(2, 2);
 
-    double u = origin.x;
-    double v = origin.y;
-    double w = origin.z;
+    const double u = origin.x;
+    const double v = origin.y;
+    const double w = origin.z;
 
     double r = radius;
 
-
     double coeff_c =
-            - 2 * a * a * o_x * u
+            -2 * a * a * o_x * u
             - 2 * b * b * o_y * v
             - 2 * c * c * o_z * w
             - 2 * d * d * o_x * u
@@ -80,10 +80,9 @@ double Cylinder::intersectsRayAt(Ray &ray) {
             + 2 * e * o_y * f * o_z
             - 2 * e * o_y * f * w
             - 2 * e * v * f * o_z
-            + 2 * e * v * f * w
-    ;
+            + 2 * e * v * f * w;
     double coeff_b =
-            + 2 * a * a * d_x * o_x
+            +2 * a * a * d_x * o_x
             - 2 * a * a * d_x * u
             + 2 * b * b * d_y * o_y
             - 2 * b * b * d_y * v
@@ -118,8 +117,7 @@ double Cylinder::intersectsRayAt(Ray &ray) {
             + 2 * f * d_z * d * o_x
             - 2 * f * d_z * d * u
             + 2 * f * d_z * e * o_y
-            - 2 * f * d_z * e * v
-    ;
+            - 2 * f * d_z * e * v;
     double coeff_a =
             2 * a * d_x * b * d_y
             + 2 * a * d_x * c * d_z
@@ -132,9 +130,7 @@ double Cylinder::intersectsRayAt(Ray &ray) {
             + c * c * d_z * d_z
             + d * d * d_x * d_x
             + e * e * d_y * d_y
-            + f * f * d_z * d_z
-    ;
-
+            + f * f * d_z * d_z;
 
 
     double discriminant = coeff_b * coeff_b - 4 * coeff_a * coeff_c;
@@ -146,25 +142,46 @@ double Cylinder::intersectsRayAt(Ray &ray) {
     Vector3 ipoint1 = ray.direction * i1 + ray.origin;
     Vector3 ipoint2 = ray.direction * i2 + ray.origin;
 
-    if (i1 >= 0 && (i2 < 0 || i2 > i1 || !isGoodZ(ipoint2.z) || ray.direction * getNormalVector(ipoint2) > 0)) {
+    double niceZ1 = applyMatrix(ipoint1-origin, rotation).z;
+    double niceZ2 = applyMatrix(ipoint2-origin, rotation).z;
+
+    if (i1 >= 0 && (i2 < 0 || i2 > i1 || !isGoodZ(niceZ2) || ray.direction * getNormalVector(ipoint2) > 0)) {
         // csak az 1. lehet jó
-        return (isGoodZ(ipoint1.z) && ray.direction * getNormalVector(ipoint1) <= 0) ? i1 : -1;
-    } else if (i2 >= 0 && (i1 < 0 || i1 > i2 || !isGoodZ(ipoint1.z) || ray.direction * getNormalVector(ipoint1) > 0)) {
+        return (isGoodZ(niceZ1) && ray.direction * getNormalVector(ipoint1) <= 0) ? i1 : -1;
+    } else if (i2 >= 0 && (i1 < 0 || i1 > i2 || !isGoodZ(niceZ1) || ray.direction * getNormalVector(ipoint1) > 0)) {
         // csak az 2. lehet jó
-        return (isGoodZ(ipoint2.z) && ray.direction * getNormalVector(ipoint2) <= 0) ? i2 : -1;
+        return (isGoodZ(niceZ2) && ray.direction * getNormalVector(ipoint2) <= 0) ? i2 : -1;
     } else {
         return -1;
     }
+
+
 }
 
 
 bool Cylinder::isGoodZ(double z) const {
-    return true;
-    return (z <= topZ + origin.z) && (z >= bottomZ + origin.z);
+    return z <= topZ && z >= bottomZ;
 }
 
 Vector3 Cylinder::getNormalVector(Vector3 &intersectionPoint) {
-    auto n = Vector3::fromTo(origin, intersectionPoint);
-    n.x=0; // todo normálisan
-    return n._normalize();
+    auto n2 = intersectionPoint - origin;
+
+    Vector3 n = applyMatrix(n2, rotation);
+    n.z = 0;
+
+    return applyMatrix(n, rotationInverse)._normalize();
+}
+
+void Cylinder::updateRotation(double angle) {
+    rotation(0, 0) = cos(angle);
+    rotation(1, 0) = 0;
+    rotation(2, 0) = sin(angle);
+    rotation(0, 1) = 0;
+    rotation(1, 1) = 1;
+    rotation(2, 1) = 0;
+    rotation(0, 2) = -sin(angle);
+    rotation(1, 2) = 0;
+    rotation(2, 2) = cos(angle);
+
+    rotationInverse = inverse(rotation);
 }

@@ -26,6 +26,6 @@ add_executable(renderer1
         src/objects/Cylinder.cpp
         src/objects/Cylinder.h
         src/objects/CylinderInsideOut.cpp
-        src/objects/CylinderInsideOut.h)
+        src/objects/CylinderInsideOut.h src/MyMatrixFunctions.cpp src/MyMatrixFunctions.h)
 
 target_link_libraries(renderer1 "-Wl,--stack,400000000")

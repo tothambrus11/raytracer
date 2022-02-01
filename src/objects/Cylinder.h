@@ -1,6 +1,9 @@
 #pragma once
 
 #include "HittableObject.h"
+#include "gmtl/Matrix.h"
+
+using namespace gmtl;
 
 class Cylinder : HittableObject {
     double bottomZ;
@@ -18,5 +21,11 @@ public:
     double intersectsRayAt(Ray &ray) override;
 
     Vector3 origin;
+
+    Matrix33d rotation;
+    Matrix33d rotationInverse;
+
     double topZ;
+
+    void updateRotation(double angle);
 };

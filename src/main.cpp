@@ -13,6 +13,7 @@
 #include "array"
 #include "objects/Cylinder.h"
 #include "objects/CylinderInsideOut.h"
+#include "MyMatrixFunctions.h"
 
 using namespace std;
 
@@ -79,7 +80,7 @@ int main(int argc, char *args[]) {
             vector<HittableObject *> objects = {};
 
 
-            objects.push_back((HittableObject *) new Cylinder({0, 0, 600}, 100, 300, 0, Material(
+            objects.push_back((HittableObject *) new Cylinder({0, 0, 1000}, 100, 150, -150, Material(
                     {.05, 0, 0},
                     {.6, .05, .05},
                     {.4},
@@ -94,8 +95,8 @@ int main(int argc, char *args[]) {
                     {.5}
             )));*/
 
-            objects.push_back((HittableObject*) new Sphere({200,200,750}, 100, {
-                    {0,0,.15},
+            objects.push_back((HittableObject *) new Sphere({200, 200, 750}, 100, {
+                    {0,  0,  .15},
                     {.0, .0, .5},
                     {.2},
                     {128},
@@ -107,9 +108,11 @@ int main(int argc, char *args[]) {
             lights.push_back(new PointLight({0, 0, 0}, {1}));
 
             auto *s1 = (Cylinder *) objects[0];
+
             //auto *s3 = (CylinderInsideOut *) objects[1];
             //auto *s2 = (Sphere *) objects[0];
 
+            double rot;
             while (!done) {
                 SDL_SetWindowTitle(window, (to_string(i++ / ((SDL_GetTicks() - t0) / 1000.0)) + " fps").c_str());
                 SDL_GetMouseState(&mouseX, &mouseY);
@@ -124,9 +127,12 @@ int main(int argc, char *args[]) {
                 //lights[1]->origin.y = -s.y*5; //s.y; // mouseY / scale - h / 2;
                 //lamp->origin.x = -s.x*15; //s.x-200; //mouseX / scale - w / 2;
                 //lamp->origin.y = -s.y*15; //s.y; // mouseY / scale - h / 2;
-                s1->origin.x = 200;
+                s1->origin.x = s.x;
                 s1->origin.y = s.y;
                 s1->origin.z = 750;// mouseX;
+                rot += .05,
+                s1->updateRotation(PI * rot );
+
                 //s3->origin.x = s.x;
                 //s3->origin.y = s.y;
 
@@ -152,7 +158,7 @@ int main(int argc, char *args[]) {
                         }
 
                         if (nearestObject != nullptr) {
-                            pixelColor = nearestObject->calculateEmittedLight(1, ray,
+                            pixelColor = nearestObject->calculateEmittedLight(10, ray,
                                                                               ray.origin + ray.direction * minDistance,
                                                                               objects, lights);
                         } else {
