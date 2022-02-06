@@ -142,7 +142,7 @@ double Cylinder::intersectsRayAt(Ray &ray) {
     Vector3 ipoint1 = ray.direction * i1 + ray.origin;
     Vector3 ipoint2 = ray.direction * i2 + ray.origin;
 
-    double niceZ1 = applyMatrix(ipoint1-origin, rotation).z;
+    double niceZ1 = applyMatrix(ipoint1-origin, rotation).z; // todo nem kell kétszer kiszámolni a helyet
     double niceZ2 = applyMatrix(ipoint2-origin, rotation).z;
 
     if (i1 >= 0 && (i2 < 0 || !isGoodZ(niceZ2) || ray.direction * getNormalVector(ipoint2) > 0)) {

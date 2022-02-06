@@ -60,12 +60,18 @@ an infinite amount of time to compute one pixel if it is an arrangement of objec
 
 ![](assets/reflection2.jpg)
 
+## Cool screenshots and videos
+https://photos.app.goo.gl/yhZZ6ANLYXQCBG8x7
 
+## Currently supported objects
+- sphere
+- cylinder
+- inside out cylinder
 ## TO-DO List
 - implement multithreading
 - implement other types of objects
     - inside out sphere -> create a surrounding mirror :D
     - plane
-    - cylinder
+    - octahedron
 - add the ability to move and rotate the camera
 - light refraction

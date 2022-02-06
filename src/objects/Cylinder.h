@@ -6,9 +6,6 @@
 using namespace gmtl;
 
 class Cylinder : HittableObject {
-    double bottomZ;
-
-    double radius;
 
 
     [[nodiscard]] bool isGoodZ(double z) const;
@@ -28,4 +25,7 @@ public:
     double topZ;
 
     void updateRotation(double angle);
+
+    double radius;
+    double bottomZ;
 };

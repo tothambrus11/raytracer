@@ -20,7 +20,7 @@ using namespace std;
 //const int SCREEN_WIDTH = 800;
 //const int SCREEN_HEIGHT = static_cast<int>(SCREEN_WIDTH * 9.0 / 16.0);
 
-const int SCREEN_WIDTH = 700;
+const int SCREEN_WIDTH = 500;
 const int SCREEN_HEIGHT = static_cast<int>(SCREEN_WIDTH / 16.0 * 9);
 
 SDL_Window *window = NULL;
@@ -83,24 +83,34 @@ int main(int argc, char *args[]) {
             vector<HittableObject *> objects = {};
 
 
-            objects.push_back((HittableObject *) new Cylinder({0, 0, 1000}, 100, 300, -150, Material(
-                    {.05, 0, 0},
-                    {.6, .05, .05},
+            objects.push_back((HittableObject *) new Cylinder({0, 0, 500}, 50, 100, 0, Material(
+                    {.0, 0, 0.05},
+                    {.05, .05, .6},
                     {.4},
                     {128},
-                    {.5}
-            )));
-            objects.push_back((HittableObject *) new CylinderInsideOut({0, 0, 600}, 99, 300, -150, Material(
-                    {.05, 0, 0},
-                    {.6, .05, .05},
-                    {.4},
-                    {128},
-                    {.5}
+                    {.3}
             )));
 
-            objects.push_back((HittableObject *) new Sphere({200, 200, 750}, 300, {
-                    {0,  0,  .15},
-                    {.0, .0, .5},
+            objects.push_back((HittableObject *) new Cylinder({0, 0, 500}, 50, 0, -100, Material(
+                    {.05, 0, 0},
+                    {.6, .05, .05},
+                    {.4},
+                    {128},
+                    {.3}
+            )));
+
+
+            /*objects.push_back((HittableObject *) new CylinderInsideOut({0, 0, 600}, 99, 300, -150, Material(
+                    {.05, 0, 0},
+                    {.6, .05, .05},
+                    {.4},
+                    {128},
+                    {.5}
+            )));*/
+
+            objects.push_back((HittableObject *) new Sphere({200, 200, 500}, 100, {
+                    {.0, .1, .0},
+                    {.05, .5, .05},
                     {.2},
                     {128},
                     {.5}
@@ -110,10 +120,27 @@ int main(int argc, char *args[]) {
             vector<PointLight *> lights = {};
             lights.push_back(new PointLight({0, 0, -1000}, {1}));
 
-            auto *s1 = (Cylinder *) objects[0];
+            auto *c1 = (Cylinder *) objects[0];
+            auto *c2 = (Cylinder *) objects[1];
 
-            auto *s3 = (CylinderInsideOut *) objects[1];
-            //auto *s2 = (Sphere *) objects[0];
+            objects.push_back((HittableObject *) new Sphere({0, 0, 0}, c1->radius, {
+                    {.0,  0,   0.05},
+                    {.05, .05, .6},
+                    {.4},
+                    {128},
+                    {.3}
+            }));
+
+            objects.push_back((HittableObject *) new Sphere({0, 0, 0}, c1->radius, {
+                    {.05, 0,   0},
+                    {.6,  .05, .05},
+                    {.4},
+                    {128},
+                    {.3}
+            }));
+
+            auto *s1 = (Sphere *) objects[3];
+            auto *s2 = (Sphere *) objects[4];
 
             double rot;
             while (!done) {
@@ -121,7 +148,7 @@ int main(int argc, char *args[]) {
                 SDL_GetMouseState(&mouseX, &mouseY);
 
                 Vector3 s;
-                s = rays[mouseY][mouseX].direction * s1->origin.z / rays[mouseY][mouseX].direction.z;
+                s = rays[mouseY][mouseX].direction * c1->origin.z / rays[mouseY][mouseX].direction.z;
                 //lights[0]->origin.x = 200;//s.x; //mouseX / scale - w / 2;
                 //lights[0]->origin.y = 0; //s.y; // mouseY / scale - h / 2;
                 lights[0]->origin.x = -200; //s.x-200; //mouseX / scale - w / 2;
@@ -131,15 +158,28 @@ int main(int argc, char *args[]) {
                 //lights[1]->origin.y = -s.y*5; //s.y; // mouseY / scale - h / 2;
                 //lamp->origin.x = -s.x*15; //s.x-200; //mouseX / scale - w / 2;
                 //lamp->origin.y = -s.y*15; //s.y; // mouseY / scale - h / 2;
-                s1->origin.x = s.x;
+
+                c1->radius = pow(sin(rot * PI), 2) * 50 + 40;
+                c2->radius = c1->radius;
+                s1->radius = c1->radius;
+                s2->radius = c1->radius;
+
+                c1->origin.x = s.x;
+                c2->origin.x = s.x;
+                c1->origin.y = s.y;
+                c2->origin.y = s.y;
+                rot += .05;
+                c1->updateRotation(PI * rot);
+                c2->updateRotation(PI * rot);
+
                 s1->origin.y = s.y;
-                s1->origin.z = 750;// mouseX;
-                s3->origin.x = s.x;
-                s3->origin.y = s.y;
-                s3->origin.z = 750;// mouseX;
-                rot += .05,
-                        s1->updateRotation(PI * rot);
-                s3->updateRotation(PI * rot);
+                s2->origin.y = s.y;
+
+                s1->origin.x = s.x + sin(-PI * rot) * c1->topZ;
+                s2->origin.x = s.x + sin(-PI * rot) * c2->bottomZ;
+
+                s1->origin.z = c1->origin.z + cos(-PI * rot) * c1->topZ;
+                s2->origin.z = c1->origin.z + cos(-PI * rot) * c2->bottomZ;
 
                 //s3->origin.x = s.x;
                 //s3->origin.y = s.y;
