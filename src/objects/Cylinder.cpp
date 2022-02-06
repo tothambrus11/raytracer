@@ -145,10 +145,10 @@ double Cylinder::intersectsRayAt(Ray &ray) {
     double niceZ1 = applyMatrix(ipoint1-origin, rotation).z;
     double niceZ2 = applyMatrix(ipoint2-origin, rotation).z;
 
-    if (i1 >= 0 && (i2 < 0 || i2 > i1 || !isGoodZ(niceZ2) || ray.direction * getNormalVector(ipoint2) > 0)) {
+    if (i1 >= 0 && (i2 < 0 || !isGoodZ(niceZ2) || ray.direction * getNormalVector(ipoint2) > 0)) {
         // csak az 1. lehet jó
         return (isGoodZ(niceZ1) && ray.direction * getNormalVector(ipoint1) <= 0) ? i1 : -1;
-    } else if (i2 >= 0 && (i1 < 0 || i1 > i2 || !isGoodZ(niceZ1) || ray.direction * getNormalVector(ipoint1) > 0)) {
+    } else if (i2 >= 0 && (i1 < 0 || !isGoodZ(niceZ1) || ray.direction * getNormalVector(ipoint1) > 0)) {
         // csak az 2. lehet jó
         return (isGoodZ(niceZ2) && ray.direction * getNormalVector(ipoint2) <= 0) ? i2 : -1;
     } else {

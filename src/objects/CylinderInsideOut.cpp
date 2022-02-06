@@ -4,12 +4,13 @@
 
 #include "Cylinder.h"
 #include "CylinderInsideOut.h"
+#include "iostream"
+
+using namespace std;
 
 Vector3 CylinderInsideOut::getNormalVector(Vector3 &intersectionPoint) {
-    auto n = Vector3::fromTo(origin, intersectionPoint);
-    n.z = 0;
-    n.x *= -1;
-    n.y *= -1;
+    auto n = Cylinder::getNormalVector(intersectionPoint);
+    n = n * -1;
     return n._normalize();
 }
 

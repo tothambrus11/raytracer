@@ -29,7 +29,10 @@ SDL_Renderer *renderer = NULL;
 const int pxcount = SCREEN_HEIGHT * SCREEN_WIDTH;
 
 int main(int argc, char *args[]) {
-
+    int n = 6;
+    for (int i = 0; i < n; i++) {
+        cout << i << endl;
+    }
     cout << "hello world\n";
     RGB255Color pixels[pxcount];
     array<array<Ray, SCREEN_WIDTH>, SCREEN_HEIGHT> rays;
@@ -80,22 +83,22 @@ int main(int argc, char *args[]) {
             vector<HittableObject *> objects = {};
 
 
-            objects.push_back((HittableObject *) new Cylinder({0, 0, 1000}, 100, 150, -150, Material(
+            objects.push_back((HittableObject *) new Cylinder({0, 0, 1000}, 100, 300, -150, Material(
                     {.05, 0, 0},
                     {.6, .05, .05},
                     {.4},
                     {128},
                     {.5}
             )));
-            /*objects.push_back((HittableObject *) new CylinderInsideOut({0, 0, 600}, 199, 300, 0, Material(
-                    {.2, .2, .05},
-                    {.4, .4, .05},
+            objects.push_back((HittableObject *) new CylinderInsideOut({0, 0, 600}, 99, 300, -150, Material(
+                    {.05, 0, 0},
+                    {.6, .05, .05},
                     {.4},
                     {128},
                     {.5}
-            )));*/
+            )));
 
-            objects.push_back((HittableObject *) new Sphere({200, 200, 750}, 100, {
+            objects.push_back((HittableObject *) new Sphere({200, 200, 750}, 300, {
                     {0,  0,  .15},
                     {.0, .0, .5},
                     {.2},
@@ -105,11 +108,11 @@ int main(int argc, char *args[]) {
 
 
             vector<PointLight *> lights = {};
-            lights.push_back(new PointLight({0, 0, 0}, {1}));
+            lights.push_back(new PointLight({0, 0, -1000}, {1}));
 
             auto *s1 = (Cylinder *) objects[0];
 
-            //auto *s3 = (CylinderInsideOut *) objects[1];
+            auto *s3 = (CylinderInsideOut *) objects[1];
             //auto *s2 = (Sphere *) objects[0];
 
             double rot;
@@ -123,15 +126,20 @@ int main(int argc, char *args[]) {
                 //lights[0]->origin.y = 0; //s.y; // mouseY / scale - h / 2;
                 lights[0]->origin.x = -200; //s.x-200; //mouseX / scale - w / 2;
                 //lights[1]->origin.x = -s.x*5; //s.x-200; //mouseX / scale - w / 2;
-                lights[0]->origin.y = -200; //s.y; // mouseY / scale - h / 2;
+                lights[0]->origin.y = 0; //s.y; // mouseY / scale - h / 2;
+                lights[0]->origin.z = 0;
                 //lights[1]->origin.y = -s.y*5; //s.y; // mouseY / scale - h / 2;
                 //lamp->origin.x = -s.x*15; //s.x-200; //mouseX / scale - w / 2;
                 //lamp->origin.y = -s.y*15; //s.y; // mouseY / scale - h / 2;
                 s1->origin.x = s.x;
                 s1->origin.y = s.y;
                 s1->origin.z = 750;// mouseX;
+                s3->origin.x = s.x;
+                s3->origin.y = s.y;
+                s3->origin.z = 750;// mouseX;
                 rot += .05,
-                s1->updateRotation(PI * rot );
+                        s1->updateRotation(PI * rot);
+                s3->updateRotation(PI * rot);
 
                 //s3->origin.x = s.x;
                 //s3->origin.y = s.y;
