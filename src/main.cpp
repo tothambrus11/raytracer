@@ -88,7 +88,7 @@ int main(int argc, char *args[]) {
                     {.05, .05, .6},
                     {.4},
                     {128},
-                    {.3}
+                    {.15}
             )));
 
             objects.push_back((HittableObject *) new Cylinder({0, 0, 500}, 50, 0, -100, Material(
@@ -96,7 +96,7 @@ int main(int argc, char *args[]) {
                     {.6, .05, .05},
                     {.4},
                     {128},
-                    {.3}
+                    {.15}
             )));
 
 
@@ -109,16 +109,16 @@ int main(int argc, char *args[]) {
             )));*/
 
             objects.push_back((HittableObject *) new Sphere({200, 200, 500}, 100, {
-                    {.0, .1, .0},
-                    {.05, .5, .05},
+                    {.0,  .3, .0},
+                    {.05, .3, .05},
                     {.2},
-                    {128},
+                    {1},
                     {.5}
             }));
 
 
             vector<PointLight *> lights = {};
-            lights.push_back(new PointLight({0, 0, -1000}, {1}));
+            lights.push_back(new PointLight({0, 0, -0}, {1}));
 
             auto *c1 = (Cylinder *) objects[0];
             auto *c2 = (Cylinder *) objects[1];
@@ -128,7 +128,7 @@ int main(int argc, char *args[]) {
                     {.05, .05, .6},
                     {.4},
                     {128},
-                    {.3}
+                    {.15}
             }));
 
             objects.push_back((HittableObject *) new Sphere({0, 0, 0}, c1->radius, {
@@ -136,7 +136,7 @@ int main(int argc, char *args[]) {
                     {.6,  .05, .05},
                     {.4},
                     {128},
-                    {.3}
+                    {.15}
             }));
 
             auto *s1 = (Sphere *) objects[3];
@@ -148,43 +148,60 @@ int main(int argc, char *args[]) {
                 SDL_GetMouseState(&mouseX, &mouseY);
 
                 Vector3 s;
-                s = rays[mouseY][mouseX].direction * c1->origin.z / rays[mouseY][mouseX].direction.z;
+                double z = 500;
+                double r = mouseX;
+
+
+                s = rays[mouseY][mouseX].direction * z / rays[mouseY][mouseX].direction.z;
                 //lights[0]->origin.x = 200;//s.x; //mouseX / scale - w / 2;
                 //lights[0]->origin.y = 0; //s.y; // mouseY / scale - h / 2;
                 lights[0]->origin.x = -200; //s.x-200; //mouseX / scale - w / 2;
                 //lights[1]->origin.x = -s.x*5; //s.x-200; //mouseX / scale - w / 2;
                 lights[0]->origin.y = 0; //s.y; // mouseY / scale - h / 2;
-                lights[0]->origin.z = 0;
+                lights[0]->origin.z = -10000;
                 //lights[1]->origin.y = -s.y*5; //s.y; // mouseY / scale - h / 2;
                 //lamp->origin.x = -s.x*15; //s.x-200; //mouseX / scale - w / 2;
                 //lamp->origin.y = -s.y*15; //s.y; // mouseY / scale - h / 2;
 
-                c1->radius = pow(sin(rot * PI), 2) * 50 + 40;
+                c1->radius = 50;
                 c2->radius = c1->radius;
                 s1->radius = c1->radius;
                 s2->radius = c1->radius;
 
-                c1->origin.x = s.x;
-                c2->origin.x = s.x;
+
+                double k1 = c1->topZ;
+                double k2 = c2->bottomZ;
+                double r_g_1 = sqrt(r * r + k1 * k1);
+                double r_g_2 = sqrt(r * r + k2 * k2);
+                double dAlpha1=acos(r/r_g_1);
+                double dAlpha2=-acos(r/r_g_2);
+
+                c1->origin.x = 0 + cos(PI * rot) * r;
+                c2->origin.x = 0 + cos(PI * rot) * r;
+                c1->origin.z = z + sin(PI * rot) * r;
+                c2->origin.z = z + sin(PI * rot) * r;
+
                 c1->origin.y = s.y;
                 c2->origin.y = s.y;
-                rot += .05;
+
+
                 c1->updateRotation(PI * rot);
                 c2->updateRotation(PI * rot);
 
                 s1->origin.y = s.y;
                 s2->origin.y = s.y;
 
-                s1->origin.x = s.x + sin(-PI * rot) * c1->topZ;
-                s2->origin.x = s.x + sin(-PI * rot) * c2->bottomZ;
+                s1->origin.x = 0 + cos(PI * rot + dAlpha1) * r_g_1;
+                s2->origin.x = 0 + cos(PI * rot + dAlpha2) * r_g_2;
 
-                s1->origin.z = c1->origin.z + cos(-PI * rot) * c1->topZ;
-                s2->origin.z = c1->origin.z + cos(-PI * rot) * c2->bottomZ;
+                s1->origin.z = z + sin(PI*rot + dAlpha1)*r_g_1;
+                s2->origin.z = z + sin(PI*rot + dAlpha2)*r_g_2;
+
 
                 //s3->origin.x = s.x;
                 //s3->origin.y = s.y;
 
-
+                rot += .05;
 
                 SDL_Delay(10);
 
