@@ -74,4 +74,5 @@ https://photos.app.goo.gl/yhZZ6ANLYXQCBG8x7
     - plane
     - octahedron
 - add the ability to move and rotate the camera
+- radiosity
 - light refraction
